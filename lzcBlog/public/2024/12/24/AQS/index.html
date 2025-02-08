@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AQS | lzcblog</title><meta name="author" content="lzc"><meta name="copyright" content="lzc"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="AQS（AbstractQueuedSynchronizer） 是 Java 并发包（java.util.concurrent）中的核心类之一，作为构建锁和同步器的基础。很多 JUC 中的同步工具，如 ReentrantLock、Semaphore、CountDownLatch、ReadWriteLock 等，都是基于 AQS 实现的。AQS 通过维护一个FIFO（先进先出）的等待队列，来管理多个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AQS">
+<meta property="og:url" content="http://example.com/2024/12/24/AQS/index.html">
+<meta property="og:site_name" content="lzcblog">
+<meta property="og:description" content="AQS（AbstractQueuedSynchronizer） 是 Java 并发包（java.util.concurrent）中的核心类之一，作为构建锁和同步器的基础。很多 JUC 中的同步工具，如 ReentrantLock、Semaphore、CountDownLatch、ReadWriteLock 等，都是基于 AQS 实现的。AQS 通过维护一个FIFO（先进先出）的等待队列，来管理多个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/head-pic.png">
+<meta property="article:published_time" content="2024-12-24T14:29:34.000Z">
+<meta property="article:modified_time" content="2024-12-24T14:30:25.145Z">
+<meta property="article:author" content="lzc">
+<meta property="article:tag" content="juc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/head-pic.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/12/24/AQS/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AQS',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/background.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/head-pic.png" alt="Logo"><span class="site-name">lzcblog</span></a><a class="nav-page-title" href="/"><span class="site-name">AQS</span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">AQS</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-24T14:29:34.000Z" title="发表于 2024-12-24 22:29:34">2024-12-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-24T14:30:25.145Z" title="更新于 2024-12-24 22:30:25">2024-12-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%85%AB%E8%82%A1%E6%96%87/">八股文</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p><strong>AQS（AbstractQueuedSynchronizer）</strong> 是 Java 并发包（<code>java.util.concurrent</code>）中的核心类之一，作为构建锁和同步器的基础。很多 JUC 中的同步工具，如 <code>ReentrantLock</code>、<code>Semaphore</code>、<code>CountDownLatch</code>、<code>ReadWriteLock</code> 等，都是基于 AQS 实现的。AQS 通过维护一个<strong>FIFO（先进先出）的等待队列</strong>，来管理多个线程之间的同步操作。</p>
+<p>AQS 主要通过内部的<strong>状态（state）</strong>和<strong>队列</strong>来控制锁的获取和释放，线程的阻塞和唤醒。</p>
+<h3 id="1-AQS-的基本结构"><a href="#1-AQS-的基本结构" class="headerlink" title="1. AQS 的基本结构"></a>1. <strong>AQS 的基本结构</strong></h3><p>AQS 的核心由以下几个部分组成：</p>
+<ul>
+<li><strong>同步状态（state）</strong>：一个 <code>int</code> 类型的变量，用于表示同步状态。可以由子类实现锁的状态，如 <code>ReentrantLock</code> 使用 <code>state == 0</code> 表示锁未被持有，<code>state == 1</code> 表示锁被持有。</li>
+<li><strong>等待队列</strong>：AQS 内部维护一个 <strong>FIFO 队列</strong>（双向链表），所有无法获得锁的线程都会被加入到这个队列中，并且线程会被挂起，直到锁可用时被唤醒。</li>
+<li><strong>Node 节点</strong>：队列中的每个节点（<code>Node</code>）代表一个等待锁的线程，Node 包含了线程的状态、前驱和后继节点的引用。</li>
+</ul>
+<h3 id="2-AQS-的工作原理"><a href="#2-AQS-的工作原理" class="headerlink" title="2. AQS 的工作原理"></a>2. <strong>AQS 的工作原理</strong></h3><p>AQS 主要通过以下几种机制来实现线程的同步控制：</p>
+<h4 id="1-独占模式（Exclusive）"><a href="#1-独占模式（Exclusive）" class="headerlink" title="1. 独占模式（Exclusive）"></a>1. <strong>独占模式（Exclusive）</strong></h4><p>在独占模式下，只有一个线程可以获取到锁，其他线程需要等待。独占模式是 <code>ReentrantLock</code> 使用的模式。</p>
+<p><strong>工作流程</strong>：</p>
+<ul>
+<li>当线程尝试获取锁时，AQS 调用 <code>acquire()</code> 方法。</li>
+<li>如果锁被占用，线程会被加入到等待队列的尾部，并进入阻塞状态（通过调用 <code>LockSupport.park()</code> 挂起线程）。</li>
+<li>当持有锁的线程释放锁时，AQS 会唤醒等待队列中的第一个线程（通过 <code>LockSupport.unpark()</code> 唤醒线程）。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">        selfInterrupt();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>acquire()</code> 方法尝试获取锁，如果获取失败，线程将进入队列等待。<code>addWaiter(Node.EXCLUSIVE)</code> 方法会将线程以独占模式加入等待队列。</p>
+<h4 id="2-共享模式（Shared）"><a href="#2-共享模式（Shared）" class="headerlink" title="2. 共享模式（Shared）"></a>2. <strong>共享模式（Shared）</strong></h4><p>在共享模式下，多个线程可以同时获得锁，这种模式适用于 <code>Semaphore</code>、<code>CountDownLatch</code> 等允许多个线程共享资源的场景。</p>
+<p><strong>工作流程</strong>：</p>
+<ul>
+<li>在共享模式下，多个线程可以同时获取锁。</li>
+<li>AQS 中的 <code>acquireShared()</code> 方法会尝试获取共享锁，如果成功，多个线程会被唤醒并共享资源。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquireShared</span><span class="params">(<span class="type">int</span> arg)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (tryAcquireShared(arg) &lt; <span class="number">0</span>)</span><br><span class="line">        doAcquireShared(arg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-等待队列的管理"><a href="#3-等待队列的管理" class="headerlink" title="3. 等待队列的管理"></a>3. <strong>等待队列的管理</strong></h3><p>AQS 内部通过一个双向链表来维护阻塞线程的等待队列。等待队列的节点是 <code>Node</code>，每个 <code>Node</code> 包含了一个线程的引用和线程的状态：</p>
+<ul>
+<li><strong>Node 的状态</strong>：<ul>
+<li><code>CANCELLED</code>：表示线程等待超时或被中断，该节点被取消。</li>
+<li><code>SIGNAL</code>：表示当前节点的线程阻塞，需要被唤醒。</li>
+<li><code>CONDITION</code>：表示线程等待在某个 <code>Condition</code> 上。</li>
+<li><code>PROPAGATE</code>：用于共享模式，表示后续节点需要被唤醒。</li>
+</ul>
+</li>
+</ul>
+<p>当某个线程释放锁时，AQS 会从队列中唤醒下一个等待线程，唤醒时调用 <code>LockSupport.unpark(thread)</code>。</p>
+<h3 id="4-锁的实现"><a href="#4-锁的实现" class="headerlink" title="4. 锁的实现"></a>4. <strong>锁的实现</strong></h3><h4 id="独占模式下的-ReentrantLock"><a href="#独占模式下的-ReentrantLock" class="headerlink" title="独占模式下的 ReentrantLock"></a><strong>独占模式下的 ReentrantLock</strong></h4><p><code>ReentrantLock</code> 是 AQS 的典型实现之一。在独占模式下，锁的获取和释放由 AQS 提供的方法来管理。</p>
+<ul>
+<li><strong>获取锁</strong>：<code>ReentrantLock.lock()</code> 方法调用 AQS 的 <code>acquire()</code>，该方法首先尝试通过 <code>tryAcquire()</code> 获取锁，如果失败，则将当前线程加入等待队列并进入阻塞状态。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) &#123;</span><br><span class="line">            setExclusiveOwnerThread(current);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">        setState(nextc);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>释放锁</strong>：<code>ReentrantLock.unlock()</code> 方法调用 AQS 的 <code>release()</code>，该方法通过 <code>tryRelease()</code> 判断是否能够释放锁，并唤醒等待队列中的下一个线程。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryRelease</span><span class="params">(<span class="type">int</span> releases)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState() - releases;</span><br><span class="line">    <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalMonitorStateException</span>();</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">free</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</span><br><span class="line">        free = <span class="literal">true</span>;</span><br><span class="line">        setExclusiveOwnerThread(<span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    setState(c);</span><br><span class="line">    <span class="keyword">return</span> free;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Condition-的实现"><a href="#5-Condition-的实现" class="headerlink" title="5. Condition 的实现"></a>5. <strong>Condition 的实现</strong></h3><p>AQS 还为每个锁提供了 <code>Condition</code> 支持，允许线程等待某个条件的发生。当线程调用 <code>Condition.await()</code> 时，线程会被放入<strong>条件队列</strong>，并在条件满足时由 <code>Condition.signal()</code> 唤醒。</p>
+<ul>
+<li>**await()**：线程调用 <code>await()</code> 后会释放锁并进入条件队列，挂起当前线程。</li>
+<li>**signal()**：唤醒等待队列中的一个线程，重新竞争锁。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">await</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="type">Node</span> <span class="variable">node</span> <span class="operator">=</span> addConditionWaiter();</span><br><span class="line">    <span class="type">int</span> <span class="variable">savedState</span> <span class="operator">=</span> fullyRelease(node);</span><br><span class="line">    <span class="keyword">while</span> (!isOnSyncQueue(node)) &#123;</span><br><span class="line">        LockSupport.park(<span class="built_in">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    acquireQueued(node, savedState);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-AQS-的优点"><a href="#6-AQS-的优点" class="headerlink" title="6. AQS 的优点"></a>6. <strong>AQS 的优点</strong></h3><ul>
+<li><strong>简化并发工具的开发</strong>：通过 AQS，开发者可以方便地实现复杂的同步工具（如自定义锁、信号量等），无需重复实现底层的同步机制。</li>
+<li><strong>可扩展性</strong>：AQS 提供了丰富的扩展点，允许开发者自定义锁的行为（独占或共享模式）。</li>
+<li><strong>高效的线程管理</strong>：AQS 通过队列管理等待线程，采用 <code>park()</code> 和 <code>unpark()</code> 提供了高效的线程阻塞与唤醒机制。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>AQS 是 Java 并发框架中实现锁、信号量等同步工具的基础框架，通过维护同步状态、等待队列和提供独占与共享两种模式，实现了对线程的阻塞和唤醒控制。它极大简化了同步器的实现，使得 <code>ReentrantLock</code>、<code>Semaphore</code> 等工具类变得更加灵活和高效。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">lzc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/12/24/AQS/">http://example.com/2024/12/24/AQS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">lzcblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/juc/">juc</a></div><div class="post-share"><div class="social-share" data-image="/img/head-pic.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/01/06/%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C/" title="最大子数组和"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">最大子数组和</div></div><div class="info-2"><div class="info-item-1">题目给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。 子数组 是数组中的一个连续部分。 示例 1： 输入：nums &#x3D; [-2,1,-3,4,-1,2,1,-5,4]输出：6解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。 示例 2： 输入：nums &#x3D; [1]输出：1 示例 3： 输入：nums &#x3D; [5,4,-1,7,8]输出：23  题解12345678910111213class Solution &#123;    public int maxSubArray(int[] nums) &#123;        int[] maxSum=new int[nums.length];        maxSum[0]=nums[0];        int max=nums[0];        for(int i=1;i&lt;nums.length;i++)        &#123;           ...</div></div></div></a><a class="pagination-related" href="/2024/12/22/localCache%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E5%8A%A0%E8%BD%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/" title="localCache持久化和加载的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">localCache持久化和加载的实现</div></div><div class="info-2"><div class="info-item-1">持久化的目的我们存储的信息都是直接放在内存中的，如果断电或者应用重启，那么内容就全部丢失了。 有时候我们希望这些信息重启之后还在，就像 redis 重启一样。 load 加载   说明在实现持久化之前，我们来看一下一个简单的需求： 如何在缓存启动的时候，指定初始化加载的信息。 实现思路这个也不难，我们在 cache 初始化的时候，直接设置对应的信息即可。 api为了便于后期拓展，定义 ICacheLoad 接口。 12345678910public interface ICacheLoad&lt;K, V&gt; &#123;    /**     * 加载缓存信息     * @param cache 缓存     * @since 0.0.7     */    void load(final ICache&lt;K,V&gt; cache);&#125;  自定义初始化策略我们在初始化的时候，放入 2 个固定的信息。 123456789public class MyCacheLoad implements ICacheLoad&lt;String,String&gt;...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head-pic.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">lzc</div><div class="author-info-description">欢迎来访本人个人博客，这里记录了个人的学习笔记，个人经验还有技术文档</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">33</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">9</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dsvsbh"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/dsvsbh" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:291396312@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">welcome to my blog and enjoy it!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-AQS-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">1. AQS 的基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-AQS-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">2. AQS 的工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%8B%AC%E5%8D%A0%E6%A8%A1%E5%BC%8F%EF%BC%88Exclusive%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">1. 独占模式（Exclusive）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%85%B1%E4%BA%AB%E6%A8%A1%E5%BC%8F%EF%BC%88Shared%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2. 共享模式（Shared）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">3. 等待队列的管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">4. 锁的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%8B%AC%E5%8D%A0%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84-ReentrantLock"><span class="toc-number">4.1.</span> <span class="toc-text">独占模式下的 ReentrantLock</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Condition-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">5. Condition 的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-AQS-%E7%9A%84%E4%BC%98%E7%82%B9"><span class="toc-number">6.</span> <span class="toc-text">6. AQS 的优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/03/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E7%BB%93%E7%82%B9/" title="删除链表的倒数第n个结点">删除链表的倒数第n个结点</a><time datetime="2025-02-03T10:15:21.000Z" title="发表于 2025-02-03 18:15:21">2025-02-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%90%9C%E7%B4%A2%E4%BA%8C%E7%BB%B4%E7%9F%A9%E9%98%B5/" title="搜索二维矩阵">搜索二维矩阵</a><time datetime="2025-02-02T12:07:39.000Z" title="发表于 2025-02-02 20:07:39">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%97%8B%E8%BD%AC%E5%9B%BE%E5%83%8F/" title="旋转图像">旋转图像</a><time datetime="2025-02-02T11:53:03.000Z" title="发表于 2025-02-02 19:53:03">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/24/54-%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" title="54.螺旋矩阵">54.螺旋矩阵</a><time datetime="2025-01-24T15:38:25.000Z" title="发表于 2025-01-24 23:38:25">2025-01-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/19/%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E8%BD%AE%E6%B5%81%E6%89%93%E5%8D%B00-100/" title="两个线程轮流打印0-100">两个线程轮流打印0-100</a><time datetime="2025-01-19T11:14:56.000Z" title="发表于 2025-01-19 19:14:56">2025-01-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/background.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By lzc</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>面试题收集 | lzcblog</title><meta name="author" content="lzc"><meta name="copyright" content="lzc"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="对Java的反射如何理解？ Java的反射机制允许在运行时动态地加载、探测、操作类和对象的属性和方法。通过反射，程序可以在运行时检查类的构造方法、成员变量和方法，甚至可以修改它们的值，调用方法。反射是Java的一种强大功能，支持动态对象操作，常用于框架设计、代码生成、依赖注入等场景。  反射机制对于其他没有反射的语言有什么好处？ 反射机制的主要好处是使得程序在运行时具有灵活性，可以动态地加载类、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试题收集">
+<meta property="og:url" content="http://example.com/2025/01/09/%E9%9D%A2%E8%AF%95%E9%A2%98%E6%94%B6%E9%9B%86/index.html">
+<meta property="og:site_name" content="lzcblog">
+<meta property="og:description" content="对Java的反射如何理解？ Java的反射机制允许在运行时动态地加载、探测、操作类和对象的属性和方法。通过反射，程序可以在运行时检查类的构造方法、成员变量和方法，甚至可以修改它们的值，调用方法。反射是Java的一种强大功能，支持动态对象操作，常用于框架设计、代码生成、依赖注入等场景。  反射机制对于其他没有反射的语言有什么好处？ 反射机制的主要好处是使得程序在运行时具有灵活性，可以动态地加载类、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/head-pic.png">
+<meta property="article:published_time" content="2025-01-09T14:22:31.000Z">
+<meta property="article:modified_time" content="2025-01-14T08:01:49.231Z">
+<meta property="article:author" content="lzc">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/head-pic.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/01/09/%E9%9D%A2%E8%AF%95%E9%A2%98%E6%94%B6%E9%9B%86/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '面试题收集',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/background.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/head-pic.png" alt="Logo"><span class="site-name">lzcblog</span></a><a class="nav-page-title" href="/"><span class="site-name">面试题收集</span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">面试题收集</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-09T14:22:31.000Z" title="发表于 2025-01-09 22:22:31">2025-01-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-14T08:01:49.231Z" title="更新于 2025-01-14 16:01:49">2025-01-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><ol>
+<li><p><strong>对Java的反射如何理解？</strong> Java的反射机制允许在运行时动态地加载、探测、操作类和对象的属性和方法。通过反射，程序可以在运行时检查类的构造方法、成员变量和方法，甚至可以修改它们的值，调用方法。反射是Java的一种强大功能，支持动态对象操作，常用于框架设计、代码生成、依赖注入等场景。</p>
+</li>
+<li><p><strong>反射机制对于其他没有反射的语言有什么好处？</strong> 反射机制的主要好处是使得程序在运行时具有灵活性，可以动态地加载类、检查类的结构并在运行时操作对象的字段和方法。这种灵活性对于框架和库的设计非常重要，因为它允许程序在不事先知道具体类的情况下操作对象。例如，Java的Spring框架利用反射实现了依赖注入、AOP等特性，而不需要在编译时确定对象类型。</p>
+</li>
+<li><p><strong>在Java中哪些效率高的功能是基于反射做的呢？</strong></p>
+<ul>
+<li><strong>动态代理</strong>：Java的<code>Proxy</code>类和<code>InvocationHandler</code>接口使用反射机制实现动态代理，使得可以在运行时动态创建代理对象，处理方法调用。</li>
+<li><strong>依赖注入（DI）</strong>：在Spring框架中，反射被用来动态地注入依赖。</li>
+<li><strong>ORM框架</strong>：如Hibernate、MyBatis，使用反射来映射数据库表和对象之间的关系。</li>
+<li><strong>序列化与反序列化</strong>：Java的<code>Serializable</code>接口和<code>ObjectInputStream</code>&#x2F;<code>ObjectOutputStream</code>的反序列化机制也依赖于反射。</li>
+</ul>
+</li>
+<li><p><strong>volatile 关键字作用</strong> <code>volatile</code>关键字确保变量的值对所有线程都是可见的。它告诉JVM，每当一个线程更新变量的值时，其他线程能够立刻看到这个变化。它避免了线程间的缓存一致性问题。</p>
+</li>
+<li><p><strong>不加这个关键字对变量修改就不会加到主存吗？加了volatile</strong> 如果没有加<code>volatile</code>关键字，线程在修改变量时可能会将修改存储在本地缓存中，而不会立刻写回到主内存，这就会导致其他线程看不到更新的值。加了<code>volatile</code>后，确保变量的值在每个线程中都是实时可见的，修改会直接反映到主内存。</p>
+</li>
+<li><p><strong>加了这个关键字还需要加锁吗？这个关键字的一些应用场景都有哪些呢？</strong> <code>volatile</code>不能代替加锁，它仅仅保证变量在多线程中的可见性，但不保证原子性。对于需要保证原子性、多个操作的同步控制，还是需要使用锁（如<code>ReentrantLock</code>、<code>synchronized</code>）。<code>volatile</code>适用于状态标志位、简单计数器等简单场景。</p>
+</li>
+<li><p><strong>假设让你写一个线程池工具，你觉得应该怎么去设计呢？应该有什么变量？有什么接口，怎么实现的大概说一下</strong></p>
+<ul>
+<li><strong>变量</strong>：<ul>
+<li>核心线程数、最大线程数、队列容量、线程池的状态（如是否关闭）。</li>
+</ul>
+</li>
+<li><strong>接口</strong>：<ul>
+<li><code>execute(Runnable task)</code>：提交任务。</li>
+<li><code>shutdown()</code>：关闭线程池。</li>
+<li><code>submit(Callable&lt;T&gt; task)</code>：提交返回结果的任务。</li>
+<li><code>getActiveCount()</code>：获取当前活动线程数。</li>
+</ul>
+</li>
+<li><strong>实现</strong>：可以通过<code>ExecutorService</code>接口来实现线程池，使用<code>ThreadPoolExecutor</code>实现，结合阻塞队列（如<code>LinkedBlockingQueue</code>）来缓存任务，设置核心线程数和最大线程数来动态调整线程池的大小。</li>
+</ul>
+</li>
+<li><p><strong>线程数量已经有了，任务超过了线程数量，怎么进行调度呢？比如核心线程数量是5，最大线程是10，现在来了11个任务</strong> 当任务超过线程池的核心线程数时，线程池会将任务放入队列等待执行。如果队列也满了，线程池会创建新的线程来执行任务，直到最大线程数为止。如果达到最大线程数且队列已满，可以使用拒绝策略（如<code>AbortPolicy</code>、<code>CallerRunsPolicy</code>等）来处理。</p>
+</li>
+<li><p><strong>如何去定位慢SQL和优化呢</strong></p>
+<ul>
+<li><strong>定位慢SQL</strong>：开启数据库的慢查询日志，分析查询执行的时间，或者通过数据库监控工具（如MySQL的<code>EXPLAIN</code>语句）来分析SQL的执行计划。</li>
+<li><strong>优化</strong>：通过添加索引、重写查询、减少数据库连接数、优化表结构、避免不必要的全表扫描等手段来提升SQL性能。</li>
+</ul>
+</li>
+<li><p><strong>数据库更新了一些异常数据，如何对异常的修改进行回退？比如清空了一段的一些值</strong> 可以通过事务回滚来实现数据回退。在执行更新操作之前，通过事务确保一系列操作的一致性。如果操作中发现异常，可以调用<code>rollback()</code>回滚事务，恢复数据的原始状态。</p>
+</li>
+<li><p><strong>SQL题:班级表和成绩表，统计这次考试每个班成绩总和的排序</strong></p>
+</li>
+</ol>
+<p>sql</p>
+<p>复制代码</p>
+<p><code>SELECT class_id, SUM(score) AS total_score FROM score_table GROUP BY class_id ORDER BY total_score DESC;</code></p>
+<ol start="12">
+<li><strong>内连接和外连接有什么区别</strong></li>
+</ol>
+<ul>
+<li><p><strong>内连接（INNER JOIN）</strong>：返回两个表中符合连接条件的记录。如果某一方没有匹配的记录，则该记录不会出现在结果集中。</p>
+</li>
+<li><p><strong>外连接（OUTER JOIN）</strong>：返回满足连接条件的记录，如果一方没有匹配的记录，则返回另一方的记录，并使用<code>NULL</code>填充缺失的部分。外连接分为左外连接、右外连接和全外连接。</p>
+</li>
+</ul>
+<ol start="13">
+<li><p><strong>介绍一下IOC概念？有什么好处呢？</strong> <strong>IOC（Inversion of Control）</strong>，控制反转，指的是将对象的创建和管理交给框架来完成，而不是在代码中手动创建和管理。它通过依赖注入（DI）实现，让程序的控制逻辑交给容器。好处是解耦、提高可维护性、便于单元测试。</p>
+</li>
+<li><p><strong>利用kafka如何保证消息的顺序呢？</strong> Kafka通过分区来保证消息的顺序。在一个分区内的消息会按照发送顺序保持一致，消费者会按照分区的顺序读取消息。如果需要全局顺序，则需要保证所有消息都发送到同一个分区。</p>
+</li>
+<li><p><strong>针对IM项目，问了场景:一个群有1000个人，1000个人同时发消息，会发生消息风暴，如何处理呢？</strong> 可以采用分布式消息队列（如Kafka、RabbitMQ等）来缓解消息风暴，采用消息异步消费、消息压缩等策略。同时可以设计消息去重、限流、批量发送等方式来处理高并发消息。</p>
+</li>
+<li><p><strong>海量数据找前10个最大？数组做堆排序如何做？</strong></p>
+</li>
+</ol>
+<ul>
+<li><p><strong>堆排序</strong>：通过构建最大堆，逐步移除最大元素，直到剩下前10个元素。</p>
+</li>
+<li><p><strong>时间复杂度</strong>：堆排序的时间复杂度是<code>O(n log n)</code>，适合处理海量数据。</p>
+</li>
+</ul>
+<ol start="17">
+<li><p><strong>对于一个整数数组4455133，只有一个数字有1个，其他都是2个，并且相同的数是相邻的，如何找出只有一个的那个数的位置？时间复杂度log n</strong> 可以利用二分查找。由于数字是相邻的，且其他数字成对出现，唯一的数字不成对，可以通过二分法找到唯一的数字的位置。</p>
+</li>
+<li><p><strong>mysql数据库的默认隔离级别？会不会导致幻读</strong></p>
+<ul>
+<li>MySQL 的默认隔离级别：</li>
+</ul>
+<p>在 MySQL 中，默认的事务隔离级别是 <strong><code>REPEATABLE READ</code>（可重复读）</strong>。</p>
+<p> <code>REPEATABLE READ</code> 是否会导致幻读？</p>
+<ul>
+<li>什么是幻读？</li>
+</ul>
+<p>幻读指的是在一个事务中，某次查询后，另一次查询又看到了“幻影行”。也就是说，<strong>同一个查询条件第一次没有匹配到的数据，第二次却匹配到了，似乎多出了一些行</strong>。这通常是由于其他事务插入了符合条件的行所导致。</p>
+</li>
+<li><p><strong>nacos的openfeign远程调用是通过http协议吗</strong></p>
+</li>
+</ol>
+<ul>
+<li><p><strong>OpenFeign 的本质</strong></p>
+<ul>
+<li>OpenFeign 是基于 HTTP 协议的声明式 HTTP 客户端。它将 HTTP 请求封装成 Java 接口，调用接口方法时，会通过底层的 HTTP 客户端（如 Apache HttpClient 或 OkHttp）发送请求。</li>
+<li>Feign 的核心功能是简化服务间基于 HTTP 的调用。</li>
+</ul>
+</li>
+<li><p><strong>HTTP 协议作为通信方式</strong></p>
+<ul>
+<li>在 OpenFeign 中，每个接口方法映射为一个 HTTP 请求，方法的注解（如 <code>@GetMapping</code>、<code>@PostMapping</code>）定义了具体的 HTTP 方法和请求路径。</li>
+</ul>
+</li>
+</ul>
+<p>20. </p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">lzc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/01/09/%E9%9D%A2%E8%AF%95%E9%A2%98%E6%94%B6%E9%9B%86/">http://example.com/2025/01/09/%E9%9D%A2%E8%AF%95%E9%A2%98%E6%94%B6%E9%9B%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">lzcblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></div><div class="post-share"><div class="social-share" data-image="/img/head-pic.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/01/14/java%E7%9A%84bigdecimal%E6%98%AF%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E7%B2%BE%E5%BA%A6%E4%B8%A2%E5%A4%B1%E7%9A%84/" title="java的bigdecimal是怎么解决精度丢失的"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">java的bigdecimal是怎么解决精度丢失的</div></div><div class="info-2"><div class="info-item-1">java的bigdecimal是怎么解决精度丢失的 在 Java 中，BigDecimal 是专门用来处理高精度计算的类，它可以避免像 float 和 double 这类浮点数在计算时可能产生的精度丢失问题。这是因为 BigDecimal 采用了 定点数表示法，而不是浮点数的近似计算方法。 工作原理 使用字符串或整数表示数值：  BigDecimal 内部通过一个 BigInteger 表示数值部分（即不带小数点的整数部分）。 小数点的位置通过一个 int 类型的标度（scale）来表示。  例如： 1234BigDecimal value = new BigDecimal(&quot;123.45&quot;);// 内部表示：// 数值部分：12345（BigInteger）// 标度：2（表示小数点后有2位小数）  避免二进制浮点数的误差：  浮点数如 double 在底层以二进制存储，许多十进制的小数（如 0.1）无法用二进制精确表示，导致计算时可能出现误差。 BigDecimal...</div></div></div></a><a class="pagination-related" href="/2025/01/09/15-%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/" title="15.三数之和"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">15.三数之和</div></div><div class="info-2"><div class="info-item-1">题目15. 三数之和给你一个整数数组 nums ，判断是否存在三元组 [nums[i], nums[j], nums[k]] 满足 i != j、i != k 且 j != k ，同时还满足 nums[i] + nums[j] + nums[k] == 0 。请你返回所有和为 0 且不重复的三元组。 注意：答案中不可以包含重复的三元组。 示例 1： 输入：nums &#x3D; [-1,0,1,2,-1,-4]输出：[[-1,-1,2],[-1,0,1]]解释：nums[0] + nums[1] + nums[2] &#x3D; (-1) + 0 + 1 &#x3D; 0 。nums[1] + nums[2] + nums[4] &#x3D; 0 + 1 + (-1) &#x3D; 0 。nums[0] + nums[3] + nums[4] &#x3D; (-1) + 2 + (-1) &#x3D; 0 。不同的三元组是 [-1,0,1] 和 [-1,-1,2] 。注意，输出的顺序和三元组的顺序并不重要。 示例 2： 输入：nums &#x3D;...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head-pic.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">lzc</div><div class="author-info-description">欢迎来访本人个人博客，这里记录了个人的学习笔记，个人经验还有技术文档</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">33</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">9</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dsvsbh"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/dsvsbh" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:291396312@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">welcome to my blog and enjoy it!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/03/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E7%BB%93%E7%82%B9/" title="删除链表的倒数第n个结点">删除链表的倒数第n个结点</a><time datetime="2025-02-03T10:15:21.000Z" title="发表于 2025-02-03 18:15:21">2025-02-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%90%9C%E7%B4%A2%E4%BA%8C%E7%BB%B4%E7%9F%A9%E9%98%B5/" title="搜索二维矩阵">搜索二维矩阵</a><time datetime="2025-02-02T12:07:39.000Z" title="发表于 2025-02-02 20:07:39">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%97%8B%E8%BD%AC%E5%9B%BE%E5%83%8F/" title="旋转图像">旋转图像</a><time datetime="2025-02-02T11:53:03.000Z" title="发表于 2025-02-02 19:53:03">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/24/54-%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" title="54.螺旋矩阵">54.螺旋矩阵</a><time datetime="2025-01-24T15:38:25.000Z" title="发表于 2025-01-24 23:38:25">2025-01-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/19/%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E8%BD%AE%E6%B5%81%E6%89%93%E5%8D%B00-100/" title="两个线程轮流打印0-100">两个线程轮流打印0-100</a><time datetime="2025-01-19T11:14:56.000Z" title="发表于 2025-01-19 19:14:56">2025-01-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/background.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By lzc</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>redisson的分布式锁实现 | lzcblog</title><meta name="author" content="lzc"><meta name="copyright" content="lzc"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="Redisson 分布式锁通过 Redis 的setnx和 Lua 脚本实现，主要特点如下： 加锁 使用 SETNX 命令加锁：  SET key value NX PX timeout NX 确保只有当锁不存在时才创建。 PX timeout 设置锁的过期时间，避免死锁。 value 通常是一个唯一标识（如 UUID），标记当前客户端（线程）持有锁。   续锁机制：  Redisson 内置了锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redisson的分布式锁实现">
+<meta property="og:url" content="http://example.com/2025/01/14/redisson%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="lzcblog">
+<meta property="og:description" content="Redisson 分布式锁通过 Redis 的setnx和 Lua 脚本实现，主要特点如下： 加锁 使用 SETNX 命令加锁：  SET key value NX PX timeout NX 确保只有当锁不存在时才创建。 PX timeout 设置锁的过期时间，避免死锁。 value 通常是一个唯一标识（如 UUID），标记当前客户端（线程）持有锁。   续锁机制：  Redisson 内置了锁">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/head-pic.png">
+<meta property="article:published_time" content="2025-01-14T08:02:21.000Z">
+<meta property="article:modified_time" content="2025-01-14T08:09:14.093Z">
+<meta property="article:author" content="lzc">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/head-pic.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/01/14/redisson%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'redisson的分布式锁实现',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/background.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/head-pic.png" alt="Logo"><span class="site-name">lzcblog</span></a><a class="nav-page-title" href="/"><span class="site-name">redisson的分布式锁实现</span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">redisson的分布式锁实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-14T08:02:21.000Z" title="发表于 2025-01-14 16:02:21">2025-01-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-14T08:09:14.093Z" title="更新于 2025-01-14 16:09:14">2025-01-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/">底层实现</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>Redisson 分布式锁通过 Redis 的setnx和 Lua 脚本实现，主要特点如下：</p>
+<h4 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a><strong>加锁</strong></h4><ul>
+<li><p><strong>使用 <code>SETNX</code> 命令加锁</strong>：</p>
+<ul>
+<li><code>SET key value NX PX timeout</code></li>
+<li><code>NX</code> 确保只有当锁不存在时才创建。</li>
+<li><code>PX timeout</code> 设置锁的过期时间，避免死锁。</li>
+<li><code>value</code> 通常是一个唯一标识（如 UUID），标记当前客户端（线程）持有锁。</li>
+</ul>
+</li>
+<li><p><strong>续锁机制</strong>：</p>
+<ul>
+<li>Redisson 内置了锁续期机制（<strong>Watchdog</strong>），会定期检查锁是否仍然持有。</li>
+<li>默认锁过期时间为 30 秒，但 Watchdog 会每隔 10 秒（默认值）续期，保持锁的有效性，直到客户端主动解锁或宕机。</li>
+</ul>
+</li>
+</ul>
+<h4 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a><strong>解锁</strong></h4><ul>
+<li><p>使用 Lua 脚本保证解锁的原子性：</p>
+<ul>
+<li><p>检查锁的值是否与当前客户端（线程）的唯一标识匹配，匹配则删除锁。</p>
+</li>
+<li><p>示例脚本：</p>
+<p>lua</p>
+<p>复制代码</p>
+<p><code>if redis.call(&quot;GET&quot;, KEYS[1]) == ARGV[1] then     return redis.call(&quot;DEL&quot;, KEYS[1]) else     return 0 end</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">lzc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/01/14/redisson%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/">http://example.com/2025/01/14/redisson%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">lzcblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a></div><div class="post-share"><div class="social-share" data-image="/img/head-pic.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/01/14/mysql%E5%88%97%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E7%94%9F%E6%95%88/" title="mysql列的联合索引什么时候生效"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">mysql列的联合索引什么时候生效</div></div><div class="info-2"><div class="info-item-1">联合索引（Composite Index） 是指在数据库中为多个列创建的索引，它可以提高查询性能，尤其是在涉及多个列的条件查询时。然而，联合索引的生效与使用条件有关。以下是几个常见的情况，说明联合索引何时生效： 1. 查询条件中涉及索引的前缀列联合索引生效的关键在于查询中是否使用了索引的前缀列（即联合索引中左侧的列）。联合索引按列顺序存储数据，因此，只有当查询条件涉及到联合索引的前缀部分时，索引才能生效。 例如，假设有以下联合索引： sql 复制代码 CREATE INDEX idx_name ON table_name (col1, col2, col3); 在此例中，(col1, col2, col3) 是联合索引。 生效情况： 使用前缀列： 只要查询条件中包含索引的前缀部分，索引都会生效。 例如，查询 col1 或 col1, col2，联合索引都会生效。 查询条件 col1 = ? 或 col1 = ? AND col2 = ?，索引会生效。 查询条件 col1 = ? AND col2 = ? AND col3 = ?，索引会生效。    不生效情况： 缺少前缀列：...</div></div></div></a><a class="pagination-related" href="/2025/01/14/java%E7%9A%84bigdecimal%E6%98%AF%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E7%B2%BE%E5%BA%A6%E4%B8%A2%E5%A4%B1%E7%9A%84/" title="java的bigdecimal是怎么解决精度丢失的"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">java的bigdecimal是怎么解决精度丢失的</div></div><div class="info-2"><div class="info-item-1">java的bigdecimal是怎么解决精度丢失的 在 Java 中，BigDecimal 是专门用来处理高精度计算的类，它可以避免像 float 和 double 这类浮点数在计算时可能产生的精度丢失问题。这是因为 BigDecimal 采用了 定点数表示法，而不是浮点数的近似计算方法。 工作原理 使用字符串或整数表示数值：  BigDecimal 内部通过一个 BigInteger 表示数值部分（即不带小数点的整数部分）。 小数点的位置通过一个 int 类型的标度（scale）来表示。  例如： 1234BigDecimal value = new BigDecimal(&quot;123.45&quot;);// 内部表示：// 数值部分：12345（BigInteger）// 标度：2（表示小数点后有2位小数）  避免二进制浮点数的误差：  浮点数如 double 在底层以二进制存储，许多十进制的小数（如 0.1）无法用二进制精确表示，导致计算时可能出现误差。 BigDecimal...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/15/redis%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/" title="redis淘汰策略"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-15</div><div class="info-item-2">redis淘汰策略</div></div><div class="info-2"><div class="info-item-1">在 Redis 中，缓存淘汰策略是内置的，用户可以通过配置来选择合适的策略。Redis 提供多种缓存淘汰策略，主要用于内存限制时控制数据的自动过期或删除。当 Redis 内存达到指定的上限时，会根据配置的策略自动淘汰一些数据。 Redis 中的主要缓存淘汰策略有以下几种： 1. Redis 支持的淘汰策略 noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。这是 Redis 默认策略，适用于不希望数据被自动淘汰的场景。 allkeys-lru：对所有的键使用 LRU（最近最少使用）算法进行淘汰。 volatile-lru：只对设置了过期时间的键使用 LRU 算法进行淘汰。 allkeys-random：对所有的键随机淘汰。 volatile-random：只对设置了过期时间的键随机淘汰。 volatile-ttl：只对设置了过期时间的键，选择即将过期的键进行淘汰。  Redis 4.0 之后新增的策略 allkeys-lfu：对所有键使用 LFU 算法进行淘汰，淘汰最少使用的键。 volatile-lfu：只对设置了过期时间的键使用 LFU...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head-pic.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">lzc</div><div class="author-info-description">欢迎来访本人个人博客，这里记录了个人的学习笔记，个人经验还有技术文档</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">33</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">9</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dsvsbh"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/dsvsbh" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:291396312@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">welcome to my blog and enjoy it!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E9%94%81"><span class="toc-number">1.</span> <span class="toc-text">加锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%94%81"><span class="toc-number">2.</span> <span class="toc-text">解锁</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/03/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E7%BB%93%E7%82%B9/" title="删除链表的倒数第n个结点">删除链表的倒数第n个结点</a><time datetime="2025-02-03T10:15:21.000Z" title="发表于 2025-02-03 18:15:21">2025-02-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%90%9C%E7%B4%A2%E4%BA%8C%E7%BB%B4%E7%9F%A9%E9%98%B5/" title="搜索二维矩阵">搜索二维矩阵</a><time datetime="2025-02-02T12:07:39.000Z" title="发表于 2025-02-02 20:07:39">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/02/%E6%97%8B%E8%BD%AC%E5%9B%BE%E5%83%8F/" title="旋转图像">旋转图像</a><time datetime="2025-02-02T11:53:03.000Z" title="发表于 2025-02-02 19:53:03">2025-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/24/54-%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" title="54.螺旋矩阵">54.螺旋矩阵</a><time datetime="2025-01-24T15:38:25.000Z" title="发表于 2025-01-24 23:38:25">2025-01-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/01/19/%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E8%BD%AE%E6%B5%81%E6%89%93%E5%8D%B00-100/" title="两个线程轮流打印0-100">两个线程轮流打印0-100</a><time datetime="2025-01-19T11:14:56.000Z" title="发表于 2025-01-19 19:14:56">2025-01-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/background.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By lzc</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
